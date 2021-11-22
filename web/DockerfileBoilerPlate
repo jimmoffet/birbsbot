@@ -1,0 +1,52 @@
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /usr/src/app
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+RUN apt-get update -y && apt install -y software-properties-common
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu focal-updates main"
+RUN apt-get update -y
+RUN apt-get install -y ffmpeg
+RUN apt-get install -y firefox
+RUN apt-get install -y python3-pip python3-dev
+RUN cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
+RUN python3 -V
+RUN ffmpeg -version
+RUN apt-get install -y libgtk-3-0
+RUN apt-get install -y libsoup2.4-1
+RUN apt-get install -y libegl1
+RUN apt-get install -y libnotify4
+RUN apt-get install -y libxslt1.1
+RUN apt-get install -y libwoff1
+RUN apt-get install -y libharfbuzz-icu0
+RUN apt-get install -y gstreamer1.0-plugins-base
+RUN apt-get install -y libgstreamer1.0-0
+RUN apt-get install -y libgstreamer-gl1.0-0
+RUN apt-get install -y gstreamer1.0-plugins-bad
+RUN apt-get install -y libwebpdemux2
+RUN apt-get install -y libatk1.0-0
+RUN apt-get install -y libenchant1c2a
+RUN apt-get install -y libsecret-1-0
+RUN apt-get install -y libhyphen0
+RUN apt-get install -y libxcomposite1
+RUN apt-get install -y libxdamage1
+RUN apt-get install -y libwayland-server0
+RUN apt-get install -y libepoxy0
+RUN apt-get install -y libevdev2
+RUN apt-get install -y libatk-bridge2.0-0
+RUN apt-get install -y libgles2
+RUN apt-get install -y liblcms2-2
+RUN apt-get install -y libgudev-1.0-0
+RUN adduser -q web
+RUN mkdir -p /usr/src/app/tempfiles
+RUN chown -R web:web /usr/src/app/tempfiles
+RUN chown -R web:web /usr/src/app
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+################################################
+# cd web
+# docker build -t jimmoffet/hub:1.4 -f DockerfileBoilerPlate .
+# docker push jimmoffet/hub:1.4
+################################################
