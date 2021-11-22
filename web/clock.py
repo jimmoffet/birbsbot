@@ -14,17 +14,12 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("rq.worker")
 
 try:
-    if os.environ.get('DEBUG') != 'True':
-        sched = BlockingScheduler()
+    log.info('Clock process is awake')
 
-        if os.getenv('DB_REMOTE') == 'STAGING' or os.getenv('DB_REMOTE') == 'PROD':
-            sched.add_job(clockTest, 'interval', hours=1)
-            sched.add_job(utilsTest, CronTrigger.from_crontab('0 20 * * 0-6',timezone='UTC'))
-
-        sched.start()
-    else:
-        while True:
-            gevent.sleep(10)
+    sched = BlockingScheduler()
+    sched.add_job(clockTest, 'interval', days=1)
+    sched.add_job(utilsTest, CronTrigger.from_crontab('0 20 * * 0-6',timezone='UTC'))
+    sched.start()
 
 except Exception as err: # pylint: disable=broad-except
     log.error('Clock process failed with error: %s and traceback: %s', err, str(traceback.format_exc()) )

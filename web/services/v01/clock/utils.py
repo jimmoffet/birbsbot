@@ -24,7 +24,7 @@ def slackAPISendMessage(msg, channel):
     response = 'unexpected error'
     try:
         response = slack_client.chat_postMessage(channel=channel, text=msg)
-        log.info('slack api chat response is %s', response)
+        # log.info('slack api chat response is %s', response)
     except SlackApiError as e:
         # You will get a SlackApiError if "ok" is False
         response = str(e.response)
@@ -33,5 +33,7 @@ def slackAPISendMessage(msg, channel):
     return response
 
 def clockTest():
+    log.warning('RUNNING CLOCKTEST')
     response = slackAPISendMessage("test message", '#new-nest')
+    log.warning('slack api response is %s', response)
     return response
