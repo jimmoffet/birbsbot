@@ -1,0 +1,113 @@
+{
+    "MatchedObjectId": "615380700",
+    "MatchedObjectDescriptor": {
+        "PositionID": "DEST-11242749-21-CB",
+        "PositionTitle": "Chief Information Officer",
+        "PositionURI": "https://www.usajobs.gov:443/GetJob/ViewDetails/615380700",
+        "ApplyURI": [
+            "https://www.usajobs.gov:443/GetJob/ViewDetails/615380700?PostingChannelID="
+        ],
+        "PositionLocationDisplay": "Washington, District of Columbia",
+        "PositionLocation": [
+            {
+                "LocationName": "Washington, District of Columbia",
+                "CountryCode": "United States",
+                "CountrySubDivisionCode": "District of Columbia",
+                "CityName": "Washington, District of Columbia",
+                "Longitude": -77.032,
+                "Latitude": 38.8904
+            }
+        ],
+        "OrganizationName": "Medicaid and CHIP Payment and Access Commission",
+        "DepartmentName": "Other Agencies and Independent Organizations",
+        "JobCategory": [
+            {
+                "Name": "Information Technology Management",
+                "Code": "2210"
+            }
+        ],
+        "JobGrade": [
+            {
+                "Code": "AD"
+            }
+        ],
+        "PositionSchedule": [
+            {
+                "Name": "Full-time",
+                "Code": "1"
+            }
+        ],
+        "PositionOfferingType": [
+            {
+                "Name": "Permanent",
+                "Code": "15317"
+            }
+        ],
+        "QualificationSummary": "Knowledge and Skills To perform the major duties listed above, the chief information officer must have: ability to assess agency evolving IT requirements, plan and implement technology improvements; strong knowledge of internal controls, risk assessment and security best practices per NIST guidance; ability to prioritize and manage multiple competing responsibilities and tasks; ability to balance macro-level agency duties as well as micro-level day-to-day network and user support; strong oral and written communication skills; an orientation toward problem solving, teamwork, and accountability; experience with cloud-based solutions and architectures, such as Amazon Web Services; ability to see color and to distinguish letters, numbers and symbols. ability to occasionally climb a ladder or stool, crawl or crouch on the floor, and lift and move up to 45 pounds; and willingness to engage in learning and development.",
+        "PositionRemuneration": [
+            {
+                "MinimumRange": "120000.0",
+                "MaximumRange": "130000.0",
+                "RateIntervalCode": "Per Year"
+            }
+        ],
+        "PositionStartDate": "2021-09-24T13:40:36.7630",
+        "PositionEndDate": "2021-12-23T23:59:59.9970",
+        "PublicationStartDate": "2021-09-24T13:40:36.7630",
+        "ApplicationCloseDate": "2021-12-23T23:59:59.9970",
+        "PositionFormattedDescription": [
+            {
+                "Label": "Dynamic Teaser",
+                "LabelDescription": "Hit highlighting for keyword searches."
+            }
+        ],
+        "UserArea": {
+            "Details": {
+                "JobSummary": "MACPAC, a nonpartisan federal legislative branch micro agency that provides policy and data analysis to Congress regarding Medicaid and the State Children's Health Insurance Program (CHIP), is seeking a chief information officer (CIO) to lead its small information technology (IT) team.",
+                "WhoMayApply": {
+                    "Name": "",
+                    "Code": ""
+                },
+                "LowGrade": "00",
+                "HighGrade": "00",
+                "PromotionPotential": "00",
+                "PromotionPotentialAdditionalText": "MACPAC has independent authority to administratively determine rates of pay and offers pay increases to recognize professional growth.",
+                "OrganizationCodes": "OT/RO00",
+                "Relocation": "True",
+                "HiringPath": [
+                    "public",
+                    "fed-competitive",
+                    "fed-excepted"
+                ],
+                "TotalOpenings": "1",
+                "AgencyMarketingStatement": "https://www.macpac.gov/.",
+                "TravelCode": "0",
+                "MajorDuties": [
+                    "The CIO performs macro-level agency duties as well as day-to-day network and user support duties required to ensure the confidentiality, integrity and availability of MACPAC's network, computing and communications systems. This position has supervisory responsibilities and reports to the chief operations officer. Major Duties The CIO will provide and implement the strategic vision for MACPAC technology resources, ensure its information resources are secure, and provide oversight and management of all MACPAC technology operations to also include, but not limited, to the following: develop goals and objectives for technology and information initiatives for MACPAC based on organizational needs; ensure the protection of IT assets and the integrity, security, and privacy of information entrusted to or maintained by MACPAC; develop and maintain information technologies policies and procedures, and associated documentation; provide advice and counsel concerning IT issues and industry trends to agency leadership; research, develop, and implement new services that can improve efficiency of MACPAC through the use of information systems; develop, plan, and manage the annual MACPAC information and technology resources and budget in consultation with leadership; work closely with all staff regarding technology needs and requests; ensure incident resolution in a timely manner; identify, develop, and manage vendors to provide MACPAC with necessary technology and information resources and services; ensure that all licensing and maintenance agreements are current; develop and implement technology and information disaster recovery strategies; supervise and direct the work of the senior information technology specialist and contract-based technical personnel; manage IT vendor contracts; manage the security and storage of sensitive statistical information in compliance with appropriate laws and data use agreement; Conduct annual IT policies, security controls and security reviews consistent with NIST guidance; Perform day-to day user, network, server and application support using a ticketing system and support application; and Perform other duties as assigned."
+                ],
+                "Education": "Qualified candidates should have a bachelor's degree in a related field, with a master's degree preferred and at least 10 years of experience performing duties listed above.",
+                "Requirements": ".",
+                "Evaluations": "Please read the "Next steps" section for more information.",
+                "HowToApply": "This is a full-time position offering federal employee health and retirement benefits. While all MACPAC employees are currently working remotely, interested candidates should be ready to work at our office in downtown Washington, DC. MACPAC is currently assessing when staff will return to the office. Salary competitive with those in other federal agencies. Interested applicants should send a cover letter and resume via our website at: https://www.macpac.gov/employment-opportunities/.",
+                "WhatToExpectNext": "Applications will be screened on an ongoing basis.",
+                "RequiredDocuments": "Please read the "How To Apply" section.",
+                "Benefits": "",
+                "BenefitsUrl": "https://www.usajobs.gov/Help/working-in-government/benefits/",
+                "BenefitsDisplayDefaultText": False,
+                "OtherInformation": "EEO Policy MACPAC is an equal opportunity employer and does not discriminate in employment on the basis of race, color, religion, sex (including gender identity), national origin, political affiliation, sexual orientation, marital status, disability, genetic information, age, membership in an employee organization, retaliation, pregnancy, parental status, military service, or other non-merit factor. MACPAC will provide reasonable accommodation to applicants with disabilities as appropriate. Determinations on requests for reasonable accommodation will be made on a case-by-case basis.",
+                "KeyRequirements": [],
+                "WithinArea": "False",
+                "CommuteDistance": "0",
+                "ServiceType": "02",
+                "AnnouncementClosingType": "01",
+                "AgencyContactEmail": "eileen.wilkie@macpac.gov",
+                "SecurityClearance": "Not Required",
+                "DrugTestRequired": "False",
+                "AdjudicationType": [],
+                "TeleworkEligible": True
+            },
+            "IsRadialSearch": False
+        }
+    },
+    "RelevanceRank": 0
+}

@@ -2,17 +2,17 @@ from flask import jsonify
 import traceback
 from flask_restful import Resource
 import logging
-from services.v01.clock.utils import clockTest
+from services.v01.clock.utils import clockTest, usajobs
 # from redisconn import conn, dq
 
 log = logging.getLogger('__main__.sub')
 
-# quick endpoint to check if the server is accessible
 class Hello(Resource):
     def get(self):
         try:
             response = clockTest()
             log.info('LOGS!!! Slack response: %s', response)
+            # usajobs()
             returnMap = {
                 "message": str(response)
             }

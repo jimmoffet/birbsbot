@@ -5,7 +5,7 @@ import traceback
 import gevent
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from services.v01.clock.utils import clockTest
+from services.v01.clock.utils import clockTest, usajobs
 from services.v01.utils import utilsTest
 # from redisconn import lq
 
@@ -17,8 +17,8 @@ try:
     log.info('Clock process is awake')
 
     sched = BlockingScheduler()
-    sched.add_job(clockTest, 'interval', days=1)
-    sched.add_job(utilsTest, CronTrigger.from_crontab('0 20 * * 0-6',timezone='UTC'))
+    sched.add_job(usajobs, 'interval', hours=1)
+    sched.add_job(clockTest, CronTrigger.from_crontab('0 20 * * 0-6',timezone='UTC'))
     sched.start()
 
 except Exception as err: # pylint: disable=broad-except
