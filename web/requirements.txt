@@ -33,8 +33,7 @@ twilio==6.27.1
 python-dotenv
 phonenumbers
 dnspython
-mailchimp-marketing
-instaloader
+oauth2client
 google-api-python-client
 google-auth
 google-auth-oauthlib
@@ -42,12 +41,6 @@ google-auth-httplib2
 six>=1.13.0
 apscheduler
 requests-oauthlib
-stripe==2.56.0
 webargs==8.0.0
 slack_sdk
-playwright==1.14.1
-TikTokApi
-selenium
-webdriver-manager
-nordvpn-connect==0.0.7
-nordvpn-switcher==0.2.7
+gspread

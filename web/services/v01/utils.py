@@ -1,34 +1,75 @@
-from flask import make_response
-import bcrypt
 import os
-import jwt
-import boto3
-from botocore.config import Config
-import shutil
-from redisconn import conn, dq, lq
-from rq import get_current_job
-import json
 import logging
-from bson import ObjectId
 import traceback
 import gevent
 import requests
 import requests.exceptions
-import copy
-import csv
-import time
-from collections import defaultdict
-from datetime import datetime, date
-from io import StringIO
-from pytz import timezone
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-import random
-import string
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
+slack_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
 log = logging.getLogger("rq.worker")
 
+def getGoogleSheet(sheetname):
+    try:
+        client = gspread.authorize(creds)
+        sheet = client.open(sheetname).sheet1
+        sheetList = sheet.get_all_values()
+    except gspread.exceptions.APIError as e:
+        print('gspread error: ', e)
+        log.error( "Caught gspread APIError: %s", e )
+        log.warning("Sleeping for 10 minutes after error.")
+        gevent.sleep(600)
+        client = gspread.authorize(creds)
+        sheet = client.open(sheetname).sheet1
+        sheetList = sheet.get_all_values()
+    return client, sheet, sheetList
+
 def utilsTest():
     return "foo"
+
+def slackAPISendMessage(msg, channel):
+    # api_response = client.api_test()
+    # log.info('slack api response is %s', api_response)
+    response = 'unexpected error'
+    try:
+        response = slack_client.chat_postMessage(channel=channel, text=msg)
+        # log.info('slack api chat response is %s', response)
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        response = str(e.response)
+        log.error("Got an error: %s", e.response['error'])
+        log.error("Error response: %s", e.response)
+    return response
+
+def new_job(job_id, sheetList):
+    last_row = len(sheetList)
+    new = True
+    for row in range(last_row):
+        if row == 0:
+            continue
+        if sheetList[row][0] == job_id:
+            new = False
+    return new
+
+def write_data(job, sheet, sheetList, channel, row=1):
+    last_row = len(sheetList)
+    job_id = job["id"]
+    cell=1
+    msg = ""
+    response = "skipping duplicate job"
+    if new_job(job_id, sheetList):
+        for key, field in job.items():
+            if key in ['title','job_url']:
+                msg += str(field) + '\n'
+            sheet.update_cell(last_row+row, cell, str(field) )
+            cell+=1
+            gevent.sleep(0.5)
+        response = slackAPISendMessage(msg, channel)
+        row+=1
+    return response
