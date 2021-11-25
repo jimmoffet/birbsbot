@@ -20,7 +20,7 @@ def create_keyfile_dict():
         "type": "service_account",
         "project_id": os.getenv('GSPREAD_PROJECT_ID'),
         "private_key_id": os.getenv('GSPREAD_PRIVATE_KEY_ID'),
-        "private_key": os.getenv('GSPREAD_PRIVATE_KEY'),
+        "private_key": str(os.getenv('GSPREAD_PRIVATE_KEY')),
         "client_email": os.getenv('GSPREAD_CLIENT_EMAIL'),
         "client_id": os.getenv('GSPREAD_CLIENT_ID'),
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -37,6 +37,7 @@ def getGoogleSheet(sheetname):
         client = gspread.authorize(creds)
         sheet = client.open(sheetname).sheet1
         sheetList = sheet.get_all_values()
+        gevent.sleep(2)
     except gspread.exceptions.APIError as e:
         print('gspread error: ', e)
         log.error( "Caught gspread APIError: %s", e )
@@ -45,6 +46,7 @@ def getGoogleSheet(sheetname):
         client = gspread.authorize(creds)
         sheet = client.open(sheetname).sheet1
         sheetList = sheet.get_all_values()
+        gevent.sleep(2)
     return client, sheet, sheetList
 
 def utilsTest():
@@ -86,7 +88,7 @@ def write_data(job, sheet, sheetList, channel, row=1):
                 msg += str(field) + '\n'
             sheet.update_cell(last_row+row, cell, str(field) )
             cell+=1
-            gevent.sleep(0.5)
+            gevent.sleep(2)
         response = slackAPISendMessage(msg, channel)
         row+=1
     return response
