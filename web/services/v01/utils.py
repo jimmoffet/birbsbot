@@ -2,6 +2,7 @@ import os
 import logging
 import traceback
 import gevent
+import json
 import requests
 import requests.exceptions
 from slack_sdk import WebClient
@@ -20,7 +21,7 @@ def create_keyfile_dict():
         "type": "service_account",
         "project_id": os.getenv('GSPREAD_PROJECT_ID'),
         "private_key_id": os.getenv('GSPREAD_PRIVATE_KEY_ID'),
-        "private_key": str(os.getenv('GSPREAD_PRIVATE_KEY')),
+        "private_key": json.loads(os.getenv('GSPREAD_PRIVATE_KEY')),
         "client_email": os.getenv('GSPREAD_CLIENT_EMAIL'),
         "client_id": os.getenv('GSPREAD_CLIENT_ID'),
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
