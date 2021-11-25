@@ -15,7 +15,7 @@ log = logging.getLogger("rq.worker")
 
 try:
     log.warning('Clock process is awake, running usajobs immediately')
-    lq.enqueue(usajobs, timeout=60, job_id='usajobs', result_ttl=500, ttl=3600, max_retries=1, retry_delay=60, depends_on=None)
+    lq.enqueue(usajobs, ttl=3600, failure_ttl=3600, job_timeout=600)
 
     sched = BlockingScheduler()
     sched.add_job(usajobs, 'interval', hours=1)
