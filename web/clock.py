@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("rq.worker")
 
 try:
-    log.info('Clock process is awake')
+    log.warning('Clock process is awake')
 
     sched = BlockingScheduler()
     sched.add_job(usajobs, 'interval', hours=1)
