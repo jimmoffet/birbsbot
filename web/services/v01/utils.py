@@ -21,7 +21,7 @@ def create_keyfile_dict():
         "type": "service_account",
         "project_id": os.getenv('GSPREAD_PROJECT_ID'),
         "private_key_id": os.getenv('GSPREAD_PRIVATE_KEY_ID'),
-        "private_key": json.loads(os.getenv('GSPREAD_PRIVATE_KEY')),
+        "private_key": json.loads(os.getenv('GSPREAD_PRIVATE_KEY')).replace('\\n', '\n'),
         "client_email": os.getenv('GSPREAD_CLIENT_EMAIL'),
         "client_id": os.getenv('GSPREAD_CLIENT_ID'),
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -29,6 +29,7 @@ def create_keyfile_dict():
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_x509_cert_url": os.getenv('GSPREAD_CLIENT_X509_CERT_URL'),
     }
+    log.warning(variables_keys)
     return variables_keys
 
 creds = ServiceAccountCredentials.from_json_keyfile_dict(create_keyfile_dict(), scope)
