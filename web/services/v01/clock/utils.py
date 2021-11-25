@@ -73,6 +73,7 @@ def usajobs():
         log.warning("%s",result_count_all)
 
         result_array = json_data['SearchResult']['SearchResultItems']
+
         row=1
         for posting in result_array:
             skip = False
