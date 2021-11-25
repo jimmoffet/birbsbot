@@ -9,11 +9,28 @@ from slack_sdk.errors import SlackApiError
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+log = logging.getLogger("rq.worker")
+
 slack_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+# creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
-log = logging.getLogger("rq.worker")
+def create_keyfile_dict():
+    variables_keys = {
+        "type": "service_account",
+        "project_id": os.getenv('GSPREAD_PROJECT_ID'),
+        "private_key_id": os.getenv('GSPREAD_PRIVATE_KEY_ID'),
+        "private_key": os.getenv('GSPREAD_PRIVATE_KEY'),
+        "client_email": os.getenv('GSPREAD_CLIENT_EMAIL'),
+        "client_id": os.getenv('GSPREAD_CLIENT_ID'),
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://accounts.google.com/o/oauth2/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": os.getenv('GSPREAD_CLIENT_X509_CERT_URL'),
+    }
+    return variables_keys
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(create_keyfile_dict(), scope)
 
 def getGoogleSheet(sheetname):
     try:
