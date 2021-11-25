@@ -33,7 +33,8 @@ def usajobs():
         ('"digital services"', 13),
         ('"software development"', 14),
         ('"user stories"', 13),
-        ('"slog.warning"', 13),
+        ('"sprint"', 13),
+        ('"scrum"', 13),
         ('"product strategy"', 13),
         ('"software life cycle"', 14),
         ('agile software', 14),
@@ -45,7 +46,7 @@ def usajobs():
         ('"location negotiable"', 13),
     ]
 
-    title_excludes = ['INFOSEC', 'CYBERSECURITY', 'SECURITY', 'physician']
+    title_excludes = ['INFOSEC', 'CYBERSECURITY', 'SECURITY', 'Physician', 'SYSADMIN', 'Systems Admin', 'System Admin']
 
     for search_phrase, grade in search_phrases:
         try:
@@ -98,7 +99,7 @@ def usajobs():
                     pass
                 
                 for exclude in title_excludes:
-                    if exclude in job_title:
+                    if exclude.lower() in job_title.lower():
                         log.warning('skipping excluded job: %s', job_title)
                         skip = True
                         break
@@ -154,4 +155,5 @@ def usajobs():
                 # log.warning(str(resp))
         except Exception as e:
             log.error('error: %s for search phrase: %s', e, search_phrase)
+            gevent.sleep(2)
             continue

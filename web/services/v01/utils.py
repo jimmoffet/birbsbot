@@ -16,7 +16,7 @@ slack_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 # creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
-log.warning('%s', str(os.getenv('GSPREAD_PRIVATE_KEY')))
+# log.warning('%s', str(os.getenv('GSPREAD_PRIVATE_KEY')))
 
 def create_keyfile_dict():
     variables_keys = {
@@ -85,13 +85,16 @@ def write_data(job, sheet, sheetList, channel, row=1):
     cell=1
     msg = ""
     response = "skipping duplicate job"
+    log.warning('Checking to see if we should write new job %s, %s', job['title'], job["id"] )
     if new_job(job_id, sheetList):
+        log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
         for key, field in job.items():
             if key in ['title','job_url']:
                 msg += str(field) + '\n'
             sheet.update_cell(last_row+row, cell, str(field) )
             cell+=1
             gevent.sleep(2)
+        log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
         response = slackAPISendMessage(msg, channel)
         row+=1
     return response
