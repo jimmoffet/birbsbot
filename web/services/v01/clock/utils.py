@@ -46,7 +46,33 @@ def usajobs():
         ('"location negotiable"', 13),
     ]
 
-    title_excludes = ['INFOSEC', 'CYBERSECURITY', 'SECURITY', 'Physician', 'SYSADMIN', 'Systems Admin', 'System Admin']
+    title_excludes = [
+        'INFOSEC', 
+        'CYBERSECURITY', 
+        'SECURITY', 
+        'Physician', 
+        'SYSADMIN', 
+        'Systems Admin', 
+        'System Admin', 
+        'Systems Engineer', 
+        'doctoral',
+        'marketing',
+        'not eligible for permanent remote',
+        'not eligible for remote',
+        'not a virtual',
+        'electronics engineer',
+        'sharepoint',
+        'oracle',
+        'business intelligence',
+        'signal',
+        'professor',
+        'general engineer',
+        'civil engineer',
+        'Physicist',
+        'aerospace',
+        'accountant',
+        'network'
+    ]
 
     for search_phrase, grade in search_phrases:
         try:
