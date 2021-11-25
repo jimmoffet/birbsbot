@@ -11,7 +11,8 @@ else:
     redis_url = os.getenv('REDIS_URL')
 
 # redis_url = os.getenv('REDISTOGO_URL')
-conn = redis.from_url(redis_url, retry_on_timeout=True, ssl_cert_reqs=None)
+# conn = redis.from_url(redis_url, retry_on_timeout=True, ssl_cert_reqs=None)
+conn = redis.from_url(redis_url, retry_on_timeout=True)
 lq = Queue('low', connection=conn)
 dq = Queue('default', connection=conn)
 hq = Queue('high', connection=conn)
