@@ -190,10 +190,7 @@ def usajobs():
                 
                 existing_jobs.append(job_id)
                 resp = write_data(job, sheet, sheetList, 'usajobs')
-                row+=1
-                # break
-                # log.warning(str(resp))
         except Exception as e:
-            log.error('error: %s for search phrase: %s', e, search_phrase)
+            log.error('usajobs error: %s for search phrase: %s', e, search_phrase)
             gevent.sleep(2)
             continue
