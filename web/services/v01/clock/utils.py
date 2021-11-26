@@ -115,6 +115,7 @@ def usajobs():
                 job_description = 'failed to retrieve job description'
                 job_url = 'failed to retrieve job url'
                 job_apply_url = 'failed to retrieve job apply url'
+                job_close_date = 'failed to retrieve job close date'
 
                 try:
                     job_id = posting['MatchedObjectId']
@@ -166,6 +167,11 @@ def usajobs():
                 except:
                     pass
 
+                try:
+                    job_close_date = posting['MatchedObjectDescriptor']['ApplicationCloseDate']
+                except:
+                    pass
+
                 job = {
                     'id': job_id,
                     'title': job_title,
@@ -174,7 +180,8 @@ def usajobs():
                     'qualifications': job_qualifications,
                     'description': job_description,
                     'job_url': job_url,
-                    'apply_url': job_apply_url
+                    'apply_url': job_apply_url,
+                    'close_date': job_close_date
                 }
 
                 if job_id in existing_jobs:
