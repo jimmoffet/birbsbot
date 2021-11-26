@@ -2,9 +2,6 @@ import os
 import logging
 import traceback
 import gevent
-import json
-import requests
-import requests.exceptions
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import gspread
@@ -69,6 +66,14 @@ def slackAPISendMessage(msg, channel):
         log.error("Error response: %s", e.response)
     return response
 
+def getExistingJobs(sheetList):
+    jobs = []
+    for row in range(len(sheetList)):
+        if row == 0:
+            continue
+        jobs.append(sheetList[row][0])
+    return jobs
+
 def new_job(job_id, sheetList):
     last_row = len(sheetList)
     new = True
@@ -79,22 +84,20 @@ def new_job(job_id, sheetList):
             new = False
     return new
 
-def write_data(job, sheet, sheetList, channel, row=1):
+def write_data(job, sheet, sheetList, channel):
     last_row = len(sheetList)
     job_id = job["id"]
+    if job_id == '':
+        return 'job_id is empty'
     cell=1
     msg = ""
-    response = "skipping duplicate job"
-    log.warning('Checking to see if we should write new job %s, %s', job['title'], job["id"] )
-    if new_job(job_id, sheetList):
-        log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
-        for key, field in job.items():
-            if key in ['title','job_url']:
-                msg += str(field) + '\n'
-            sheet.update_cell(last_row+row, cell, str(field) )
-            cell+=1
-            gevent.sleep(2)
-        log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
-        response = slackAPISendMessage(msg, channel)
-        row+=1
+    log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
+    for key, field in job.items():
+        if key in ['title','job_url']:
+            msg += str(field) + '\n'
+        sheet.update_cell(last_row, cell, str(field) )
+        cell+=1
+        gevent.sleep(2)
+    log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
+    response = slackAPISendMessage(msg, channel)
     return response
