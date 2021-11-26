@@ -11,7 +11,8 @@ def clockTest():
     return response
 
 def usajobs():
-    client, sheet, sheetList = getGoogleSheet('usajobs')
+    _, sheet, sheetList = getGoogleSheet('usajobs')
+    existing_jobs = getExistingJobs(sheetList)
 
     base = 'https://data.usajobs.gov/api/'
     endpoint = 'search?ResultsPerPage=500&'
@@ -71,7 +72,8 @@ def usajobs():
         'Physicist',
         'aerospace',
         'accountant',
-        'network'
+        'network',
+        'nurse'
     ]
 
     for search_phrase, grade in search_phrases:
@@ -174,8 +176,20 @@ def usajobs():
                     'job_url': job_url,
                     'apply_url': job_apply_url
                 }
+
+                if job_id in existing_jobs:
+                    log.warning('skipping existing job: %s', job_title)
+                    continue
                 
-                resp = write_data(job, sheet, sheetList, 'usajobs', row)
+                _, sheet, sheetList = getGoogleSheet('usajobs')
+                existing_jobs = getExistingJobs(sheetList)
+
+                if job_id in existing_jobs:
+                    log.warning('skipping existing job: %s', job_title)
+                    continue
+                
+                existing_jobs.append(job_id)
+                resp = write_data(job, sheet, sheetList, 'usajobs')
                 row+=1
                 # break
                 # log.warning(str(resp))
