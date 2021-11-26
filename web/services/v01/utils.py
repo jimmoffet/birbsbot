@@ -85,19 +85,23 @@ def new_job(job_id, sheetList):
     return new
 
 def write_data(job, sheet, sheetList, channel):
-    last_row = len(sheetList)
-    job_id = job["id"]
-    if job_id == '':
-        return 'job_id is empty'
-    cell=1
-    msg = ""
-    log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
-    for key, field in job.items():
-        if key in ['title','job_url']:
-            msg += str(field) + '\n'
-        sheet.update_cell(last_row, cell, str(field) )
-        cell+=1
-        gevent.sleep(2)
-    log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
-    response = slackAPISendMessage(msg, channel)
-    return response
+    try:
+        last_row = len(sheetList)
+        job_id = job["id"]
+        if job_id == '':
+            return 'job_id is empty'
+        cell=1
+        msg = ""
+        log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
+        for key, field in job.items():
+            if key in ['title','job_url']:
+                msg += str(field) + '\n'
+            sheet.update_cell(last_row, cell, str(field) )
+            cell+=1
+            gevent.sleep(2)
+        log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
+        response = slackAPISendMessage(msg, channel)
+        return response
+    except Exception as e:
+        log.error('write_data error: %s for job_id: %s', e, job["id"])
+        return 'job failed'
