@@ -1,4 +1,6 @@
 import os
+import traceback
+import requests
 import logging
 from services.v01.utils import *
 
@@ -198,6 +200,6 @@ def usajobs():
                 existing_jobs.append(job_id)
                 resp = write_data(job, sheet, sheetList, 'usajobs')
         except Exception as e:
-            log.error('usajobs error: %s for search phrase: %s', e, search_phrase)
+            log.error('usajobs error: %s for search phrase: %s, with traceback', e, search_phrase, traceback.format_exc())
             gevent.sleep(2)
             continue
