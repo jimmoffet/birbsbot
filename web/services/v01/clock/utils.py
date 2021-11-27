@@ -14,7 +14,8 @@ def clockTest():
 
 def usajobs():
     _, sheet, sheetList = getGoogleSheet('usajobs')
-    existing_jobs = getExistingJobs(sheetList)
+    existing_jobs_array = getExistingJobs(sheetList)
+    existing_jobs = set(existing_jobs_array)
 
     base = 'https://data.usajobs.gov/api/'
     endpoint = 'search?ResultsPerPage=500&'
@@ -191,15 +192,17 @@ def usajobs():
                     continue
                 
                 _, sheet, sheetList = getGoogleSheet('usajobs')
-                existing_jobs = getExistingJobs(sheetList)
+                existing_jobs_array = getExistingJobs(sheetList)
+                existing_jobs_set = set(existing_jobs_array)
+                existing_jobs.union(existing_jobs_set)
 
                 if job_id in existing_jobs:
                     log.warning('skipping existing job: %s', job_title)
                     continue
                 
-                existing_jobs.append(job_id)
+                existing_jobs.add(job_id)
                 resp = write_data(job, sheet, sheetList, 'usajobs')
         except Exception as e:
-            log.error('usajobs error: %s for search phrase: %s, with traceback', e, search_phrase, traceback.format_exc())
+            log.error('usajobs error: %s for search phrase: %s, with traceback: %s', e, search_phrase, traceback.format_exc())
             gevent.sleep(2)
             continue
