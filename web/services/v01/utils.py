@@ -72,6 +72,7 @@ def getExistingJobs(sheetList):
         if row == 0:
             continue
         jobs.append(sheetList[row][0])
+    log.warning('final row job id: %s', jobs[-1])
     return jobs
 
 def new_job(job_id, sheetList):

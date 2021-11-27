@@ -14,11 +14,15 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("rq.worker")
 
 try:
+    def run_usajobs():
+        lq.enqueue(usajobs, ttl=3600, failure_ttl=3600, job_timeout=600)
+        return True
+    
     log.warning('Clock process is awake, running usajobs immediately')
-    lq.enqueue(usajobs, ttl=3600, failure_ttl=3600, job_timeout=600)
+    run_usajobs()
 
     sched = BlockingScheduler()
-    sched.add_job(usajobs, 'interval', hours=1)
+    sched.add_job(run_usajobs, 'interval', hours=1)
     sched.add_job(clockTest, CronTrigger.from_crontab('0 20 * * 0-6',timezone='UTC'))
     sched.start()
 
