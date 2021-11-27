@@ -68,7 +68,7 @@ def slackAPISendMessage(msg, channel):
 
 def getExistingJobs(sheetList):
     jobs = []
-    for row in range(len(sheetList)+1):
+    for row in range(len(sheetList)):
         if row == 0:
             continue
         jobs.append(sheetList[row][0])
