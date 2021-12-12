@@ -10,10 +10,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 log = logging.getLogger("rq.worker")
 
 slack_client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+scope = ['https://spreadsheets.google.com/feeds',
+         'https://www.googleapis.com/auth/drive']
 # creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 
 # log.warning('%s', str(os.getenv('GSPREAD_PRIVATE_KEY')))
+
 
 def create_keyfile_dict():
     variables_keys = {
@@ -30,7 +32,10 @@ def create_keyfile_dict():
     }
     return variables_keys
 
-creds = ServiceAccountCredentials.from_json_keyfile_dict(create_keyfile_dict(), scope)
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    create_keyfile_dict(), scope)
+
 
 def getGoogleSheet(sheetname):
     try:
@@ -40,7 +45,7 @@ def getGoogleSheet(sheetname):
         gevent.sleep(2)
     except gspread.exceptions.APIError as e:
         print('gspread error: ', e)
-        log.error( "Caught gspread APIError: %s", e )
+        log.error("Caught gspread APIError: %s", e)
         log.warning("Sleeping for 10 minutes after error.")
         gevent.sleep(600)
         client = gspread.authorize(creds)
@@ -49,8 +54,10 @@ def getGoogleSheet(sheetname):
         gevent.sleep(2)
     return client, sheet, sheetList
 
+
 def utilsTest():
     return "foo"
+
 
 def slackAPISendMessage(msg, channel):
     # api_response = client.api_test()
@@ -66,14 +73,32 @@ def slackAPISendMessage(msg, channel):
         log.error("Error response: %s", e.response)
     return response
 
+
+def slackAPISendReply(text, channel, ts):
+    # api_response = client.api_test()
+    # log.info(u'slack api response is %s', api_response)
+    response = 'unexpected error'
+    try:
+        response = slack_client.chat_postMessage(
+            channel=channel, text=text, thread_ts=ts)
+        log.info(u'slack api chat response is %s', response)
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        response = str(e.response)
+        log.error("Got an error: %s", e.response['error'])
+        log.error("Error response: %s", e.response)
+    return response
+
+
 def getExistingJobs(sheetList):
     jobs = []
     for row in range(len(sheetList)):
         if row == 0:
             continue
         jobs.append(sheetList[row][0])
-    log.warning('final row job id: %s', jobs[-1])
+    # log.warning('final row job id: %s', jobs[-1])
     return jobs
+
 
 def new_job(job_id, sheetList):
     last_row = len(sheetList)
@@ -85,24 +110,57 @@ def new_job(job_id, sheetList):
             new = False
     return new
 
+
 def write_data(job, sheet, sheetList, channel):
     try:
         last_row = len(sheetList)+1
         job_id = job["id"]
         if job_id == '':
             return 'job_id is empty'
-        cell=1
+        cell = 1
         msg = ""
-        log.warning('Writing new job %s, %s to sheets', job['title'], job["id"] )
+        log.warning('Writing new job %s, %s to sheets',
+                    job['title'], job["id"])
         for key, field in job.items():
-            if key in ['title','job_url']:
+            if key in ['title', 'job_url']:
                 msg += str(field) + '\n'
-            sheet.update_cell(last_row, cell, str(field) )
-            cell+=1
+            sheet.update_cell(last_row, cell, str(field))
+            cell += 1
             gevent.sleep(2)
-        log.warning('Writing new job %s, %s to slack', job['title'], job["id"] )
-        response = slackAPISendMessage(msg, channel)
-        return response
+
+        # log.warning('Writing new job %s, %s to slack', job['title'], job["id"])
+        # response = slackAPISendMessage(msg, channel)
+        return 'job succeeded'
     except Exception as e:
         log.error('write_data error: %s for job_id: %s', e, job["id"])
+        return 'job failed'
+
+
+def write_datas(job, sheet, sheetList, channel):
+    try:
+        last_row = len(sheetList)+1
+        cells = []
+        job_id = job["id"]
+        if job_id == '':
+            return 'job_id is empty'
+        msg = ""
+        log.warning('Writing new job %s, %s to sheets',
+                    job['title'], job["id"])
+        for key, field in job.items():
+            cells.append(str(field))
+
+        letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        indices = "A"+str(last_row)+":" + \
+            letters[-1*(len(cells)-1)]+str(last_row)
+
+        cell_list = sheet.range(str(indices))
+        for i, val in enumerate(cells):
+            cell_list[i].value = val
+        sheet.update_cells(cell_list)
+        gevent.sleep(2)
+
+        return 'job succeeded'
+    except Exception as e:
+        log.error('write_data error: %s for job_id: %s, with trace: %s',
+                  e, job["id"], traceback.format_exc())
         return 'job failed'
