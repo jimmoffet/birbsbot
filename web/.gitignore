@@ -3,4 +3,4 @@ env
 *.env
 *.pyc
 *.vscode
-*.terraform/providers
+*.terraform/*
