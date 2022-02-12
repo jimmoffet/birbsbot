@@ -8,11 +8,10 @@ terraform {
 
   required_version = ">= 1.1.0"
   backend "s3" {
-            bucket = var.bucket_name
-            key    = birbsbot_terraform_state
+            bucket = "terraformstatebirbsbot"
+            key    = "birbsbot_terraform_state"
             region = "us-west-2"
         }
-    }
 }
 
 provider "aws" {
@@ -43,7 +42,7 @@ resource "aws_s3_bucket" "s3Bucket" {
                 "s3:GetObject"
             ],
             "effect" : "Allow",
-            "resource" : "arn:aws:s3:::terraform_state_bucket/*",
+            "resource" : "arn:aws:s3:::terraformstatebirbsbot/*",
             "principal" : "*"
         }
         ]
