@@ -1,0 +1,15 @@
+version: '3'
+
+# Amazon ECS CLI supports Docker compose file syntax, minor versions are not supported
+
+services:
+  web:
+    image: amazon/amazon-ecs-sample
+    ports:
+      - "80:80" # expose port 80 for inbound traffic to the container
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: tutorial
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: web

@@ -7,16 +7,27 @@ terraform {
   }
 
   required_version = ">= 1.1.0"
-  #   backend "s3" {
-  #     bucket = var.bucket_name
-  #     key    = "state"
-  #     region = var.region
-  #   }
+  # to destroy the s3 backend resource using terraform destroy
+  # we need to migrate back to storing state locally with these steps
+  # 1. comment out backend statement
+  # 2. terraform init -migrate-state
+  # 3. terraform destroy
+  backend "s3" {
+    bucket         = "terraform-birbsbot-state"
+    key            = "state/terraform.tfstate"
+    region         = "us-west-2"
+    dynamodb_table = "tf-up-and-run-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
   profile = "default"
   region  = var.region
+}
+
+resource "aws_ecr_repository" "birbsbot_ecr_repo" {
+  name = "birbsbot-ecr-repo" # Naming my repository
 }
 
 # resource "aws_instance" "app_server" {

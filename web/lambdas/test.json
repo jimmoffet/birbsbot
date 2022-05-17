@@ -1,0 +1,41 @@
+{
+	"version": "2.0",
+	"routeKey": "$default",
+	"rawPath": "/",
+	"rawQueryString": "",
+	"headers": {
+		"content-length": "16",
+		"x-amzn-trace-id": "Root=1-627df05b-53605743437f69d4008242fc",
+		"x-forwarded-proto": "https",
+		"host": "oz562gi3ub5gnmebohx7hczdda0blxdx.lambda-url.us-west-2.on.aws",
+		"x-forwarded-port": "443",
+		"content-type": "application/json",
+		"x-forwarded-for": "97.115.185.190",
+		"accept-encoding": "gzip, deflate, br",
+		"user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd96Kr16Q8t9R6Z5QubZ6d0OSKL7Yo0)"
+	},
+	"requestContext": {
+		"accountId": "anonymous",
+		"apiId": "oz562gi3ub5gnmebohx7hczdda0blxdx",
+		"domainName": "oz562gi3ub5gnmebohx7hczdda0blxdx.lambda-url.us-west-2.on.aws",
+		"domainPrefix": "oz562gi3ub5gnmebohx7hczdda0blxdx",
+		"http": [],
+		"requestId": "1d13c7ed-4dca-482b-af23-1d1a4fa6b7a7",
+		"routeKey": "$default",
+		"stage": "$default",
+		"time": "13/May/2022:05:44:59 +0000",
+		"timeEpoch": 1652420699096
+	},
+	"body": {
+		"inflation": 0.0313,
+		"returnRate": 0.05,
+		"postRetirementReturnRate": 0.0313,
+		"monthlyBudget": 5500,
+		"oopsBudget": 1000,
+		"travelBudget": 1000,
+		"retirementReduction": 0.25,
+		"early40sReduction": 0.05,
+		"maxRentals": 1
+	},
+	"isBase64Encoded": false
+}
