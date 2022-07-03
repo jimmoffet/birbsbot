@@ -13,6 +13,7 @@ USAJOBSKEY = os.environ["USAJOBS_API_KEY"]
 slack_client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
 
 log = logging.getLogger()
+log.setLevel(logging.INFO)
 
 db_client = MongoClient(os.environ["MONGO_URI"], connect=False)
 db = db_client.usajobs
@@ -70,11 +71,16 @@ def lambda_handler(event, context):
 
     log.warning("event is: %s", event)
 
+    try:
+        body = json.loads(event["body"])
+    except:
+        body = event["body"]
+
     base = "https://data.usajobs.gov/api/"
     endpoint = "search?ResultsPerPage=500&"
 
-    search_phrase = event["search_phrase"]
-    grade = event["grade"]
+    search_phrase = body["search_phrase"]
+    grade = int(body["grade"])
 
     # search_phrase = 'chief innovation'
     # grade = 16
@@ -109,9 +115,19 @@ def lambda_handler(event, context):
         "accountant",
         "network",
         "nurse",
+        "Weapon",
+        "Medicine",
+        "Attorney",
+        "biomedical",
+        "cyber",
+        "economist",
+        "intelligence",
+        "specialist",
+        "physical scientist",
+        "dean",
     ]
 
-    grade = 16
+    # grade = 16
 
     search_param = "Keyword=" + search_phrase + "&"
     hiring_path_param = "HiringPath=public&HiringPath=fed-excepted"
@@ -132,18 +148,24 @@ def lambda_handler(event, context):
 
     response = requests.get(url, headers=headers)
 
+    log.warning("%s", response.status_code)
+
     if response.status_code == 200:
 
-        # log.warning("%s", response.status_code)
-
-        json_data = response.json()
+        try:
+            json_data = response.json()
+        except:
+            log.warning("JSON decode failed with response text: %s", response.text)
+            err = response.text
+            body = None
+            return respond(err, response.status_code, body)
         body = json_data
 
         # result_dict = json_data['SearchResult']
         result_count = json_data["SearchResult"]["SearchResultCount"]
-        log.warning("result_count: %s", result_count)
+        log.warning("%s", result_count)
         result_count_all = json_data["SearchResult"]["SearchResultCountAll"]
-        log.warning("result_count_all: %s", result_count_all)
+        log.warning("%s", result_count_all)
 
         result_array = json_data["SearchResult"]["SearchResultItems"]
 
@@ -298,21 +320,29 @@ def lambda_handler(event, context):
                 "Attempted update, matched_count: %s, modified_count: %s", result.matched_count, result.modified_count
             )
 
-            msg = job_title + "\n"
-            msg += "Search: " + search_phrase + "\n"
-            msg += job_location + "\n"
-            msg += job_employer + "\n"
-            msg += job_salary + "\n"
-            msg += job_close_date + "\n"
-            msg += job_url + "\n"
-            log.warning("Writing new job %s, %s to slack", job_title, job_id)
-            response = slackAPISendMessage(msg, "usajobs")
-            ts = response["ts"]
-            # log.info('msg ts is: %s', ts)
-            reply_msg = job["duties"]
-            reply_response = slackAPISendReply(reply_msg, "usajobs", ts)
+            if (
+                (min_salary > 135467 and max_salary > 176300)
+                or high_grade == "ES"
+                or high_grade == "SL"
+                or high_grade == "SE"
+            ):
+                msg = job_title + "\n"
+                msg += "Search: " + search_phrase + "\n"
+                msg += job_location + "\n"
+                msg += job_employer + "\n"
+                msg += "Grade: " + high_grade + "\n"
+                msg += job_salary + "\n"
+                msg += job_close_date + "\n"
+                msg += job_url + "\n"
+                log.warning("Writing new job %s, %s to slack", job_title, job_id)
+                response = slackAPISendMessage(msg, "usajobs")
+                ts = response["ts"]
+                # log.info('msg ts is: %s', ts)
+                reply_msg = job["duties"]
+                reply_response = slackAPISendReply(reply_msg, "usajobs", ts)
 
         # log.warning("%s", response.status_code)
+        body = {"result_count": result_count}
     else:
 
         log.error(
@@ -323,4 +353,9 @@ def lambda_handler(event, context):
     return respond(err, response.status_code, body)
 
 
-# lambda_handler(None, None)
+context = None
+body = {"search_phrase": "chief innovation", "grade": "16"}
+body = json.dumps(body)
+event = {"body": body}
+
+lambda_handler(event, context)

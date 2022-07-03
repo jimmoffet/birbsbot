@@ -4,12 +4,21 @@ version: '3'
 
 services:
   web:
-    image: amazon/amazon-ecs-sample
+    image: 296153684168.dkr.ecr.us-west-2.amazonaws.com/birbsbot_web:latest
+    environment:
+      - DB_REMOTE=PROD
+      - DEBUG=False
+      - LOCAL=True
+      - SLACK_BOT_TOKEN=xoxb-973594616288-2750447535381-mWwXC1qbeFb99uFjJ4SXWMtl
+      - SLACK_WEBHOOK_GENERAL=https://hooks.slack.com/services/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
+      - generalWebhook=https://hooks.slack.com/services/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
+      - USAJOBS_API_KEY=TU37dsbsvSn6ICF6eh+mSYT70AA7r0gQdIaRBvZbmwc=
+      - MONGO_URI=mongodb+srv://adminbirbs:sinQDyKvYWuDWFkX@cluster0.xgabv.mongodb.net/test
     ports:
       - "80:80" # expose port 80 for inbound traffic to the container
     logging:
       driver: awslogs
       options:
-        awslogs-group: tutorial
+        awslogs-group: birbs-cluster
         awslogs-region: us-west-2
         awslogs-stream-prefix: web

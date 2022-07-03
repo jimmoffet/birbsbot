@@ -4,12 +4,35 @@
 
 # run these commands individually in the console via aws-cli
 
-REGION=us-west-2
-CLUSTER_NAME=tutorial
-CLUSTER_CONFIG_NAME=tutorial
-PROFILE_NAME=tutorial-profile
-aws_access_key_id=
-aws_secret_access_key=
+export REGION=us-west-2 &&
+export CLUSTER_NAME=birbs-cluster &&
+export CLUSTER_CONFIG_NAME=birbs-cluster &&
+export PROFILE_NAME=birbs-cluster-profile &&
+export aws_access_key_id=AKIAUJ5BCTDELZARH65B &&
+export aws_secret_access_key=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 &&
+export aws_account_id=296153684168
+
+# AUTHENTICATE TO ECR
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $aws_account_id.dkr.ecr.$REGION.amazonaws.com
+
+# container name: 296153684168.dkr.ecr.us-west-2.amazonaws.com/birbsbot_web:latest
+#repo name is same as container to push
+echo "Create a new private repository"
+aws ecr create-repository \
+    --repository-name birbsbot_web \
+    --image-scanning-configuration scanOnPush=true \
+    --region $REGION
+
+# view local images
+docker images
+
+# tag the image locally
+docker tag birbsbot_web:latest $aws_account_id.dkr.ecr.$REGION.amazonaws.com/birbsbot_web:latest
+
+# push the image to the repository
+docker push $aws_account_id.dkr.ecr.$REGION.amazonaws.com/birbsbot_web:latest
+
+
 
 # Create the Task Execution IAM Role
 
@@ -38,14 +61,18 @@ ecs-cli up --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
 
 # NEED TO READ AND SET VPC_ID HERE
 
-vpc_id=
+VPC created: vpc-0ff4675b4f32b0246
+Subnet created: subnet-0fbca16a4d28655b2
+Subnet created: subnet-022736b52123fc91e
+
+export vpc_id=vpc-0ff4675b4f32b0246
 
 echo "Retrieve the default security group ID for the VPC. Use the VPC ID from the previous output:"
 aws ec2 describe-security-groups --filters Name=vpc-id,Values=$vpc_id --region $REGION
 
 # The output of this command contains your security group ID, which is used in the next step.
 
-security_group_id=
+export security_group_id=sg-0e60e6639efcde9dd
 
 echo "Adding a security group rule to allow inbound access on port 80:"
 aws ec2 authorize-security-group-ingress --group-id $security_group_id --protocol tcp --port 80 --cidr 0.0.0.0/0 --region $REGION
@@ -58,6 +85,8 @@ aws ec2 authorize-security-group-ingress --group-id $security_group_id --protoco
 # this command have the current directory in their titles, but you can override that with the --project-name option. 
 # The --create-log-groups option creates the CloudWatch log groups for the container logs.
 
+ecs-cli compose --project-name $CLUSTER_NAME service build --create-log-groups --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
+
 echo "Deploy it to your cluster with ecs-cli compose service up. This will auto discover the docker-compose and ecs-params files in the current directory:"
 ecs-cli compose --project-name $CLUSTER_NAME service up --create-log-groups --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
 
@@ -68,7 +97,7 @@ ecs-cli compose --project-name $CLUSTER_NAME service ps --cluster-config $CLUSTE
 # Name                                                State    Ports                     TaskDefinition       Health
 # $CLUSTER_NAME/$task_id/web  RUNNING  34.222.202.55:80->80/tcp  $CLUSTER_NAME:1      UNKNOWN
 
-task_id=
+export task_id=df7f3d85e7c844479c869102275ed662
 
 echo "Displaying container logs"
 ecs-cli logs --task-id $task_id --follow --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
@@ -78,10 +107,10 @@ echo "Scale instances to 2"
 ecs-cli compose --project-name $CLUSTER_NAME service scale 2 --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
 
 echo "Run ps to view running containers"
-ecs-cli compose --project-name tutorial service ps --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile tutorial-profile
+ecs-cli compose --project-name $CLUSTER_NAME service ps --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
 
 echo "Scale instances to 1"
-ecs-cli compose --project-name $CLUSTER_NAME service scale 2 --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
+ecs-cli compose --project-name $CLUSTER_NAME service scale 1 --cluster-config $CLUSTER_CONFIG_NAME --ecs-profile $PROFILE_NAME
 
 #### CHECK THAT SERVER IS LIVE ON IP ADDRESS
 

@@ -11,27 +11,28 @@ from flask_sockets import Sockets
 # from redisconn import conn, dq, chatconn
 ### custom json encoder for mongo objects
 from customjsonencoder import CustomJSONEncoder
+from services.v01.clock.mongoutils import usajobs
 
 ##############################
 #### Build and config app ####
 ##############################
 
-app = Flask(__name__)
-api = Api(app)
-sockets = Sockets(app)
-CORS(app, resources={r"/*": {"origins": "*"}})
-app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=60)
-app.config["JWT_BLACKLIST_ENABLED"] = True
-app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
-app.config["PROPAGATE_EXCEPTIONS"] = True
-app.json_encoder = CustomJSONEncoder
-app.config["RESTFUL_JSON"] = {"cls": CustomJSONEncoder}
-jwt = JWTManager(app)
+# app = Flask(__name__)
+# api = Api(app)
+# sockets = Sockets(app)
+# CORS(app, resources={r"/*": {"origins": "*"}})
+# app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY")
+# app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
+# app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=60)
+# app.config["JWT_BLACKLIST_ENABLED"] = True
+# app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
+# app.config["PROPAGATE_EXCEPTIONS"] = True
+# app.json_encoder = CustomJSONEncoder
+# app.config["RESTFUL_JSON"] = {"cls": CustomJSONEncoder}
+# jwt = JWTManager(app)
 
-if os.getenv("DEBUG") == "True":
-    app.debug = True
+# if os.getenv("DEBUG") == "True":
+#     app.debug = True
 
 # @jwt.token_in_blacklist_loader
 # def check_if_token_in_blacklist(decrypted_token):
@@ -58,14 +59,22 @@ log.info("Hello from init.py")
 # from routes import *
 
 ### http:// routes
-import routes.hello  # root
+# import routes.hello  # root
 
 ### ws:// routes
-import routes.echo  # websocket test echo
+# import routes.echo  # websocket test echo
 
 ##############################
 ######### Endpoints ##########
 ##############################
 
 ### api endpoints by version
-from services.v01.endpoints import *
+# from services.v01.endpoints import *
+
+if __name__ == "__main__":
+    log.info("Hello from run main")
+    usajobs()
+    # server = pywsgi.WSGIServer(
+    #     ("0.0.0.0", 5000), app, handler_class=WebSocketHandler, workers=1 + (multiprocessing.cpu_count() * 2)
+    # )
+    # server.serve_forever()

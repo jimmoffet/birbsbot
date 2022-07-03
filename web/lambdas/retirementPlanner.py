@@ -19,16 +19,12 @@ hollandUtilites = 400
 foreverHomeUtilities = 500
 vacancyRate = 0.04
 propManRate = 0.09  # includes half month for new tenants
-lombardHollandNetIncome = (
-    325  # includes 100/mo HELOC pmt, but not 450 fedloan payment (currently coming from oops budget)
-)
+lombardHollandNetIncome = 867  # lombard clears 1200 gross, probably 900 net
 lombardHollandEquity = 250000
 rentalIncomeNominal = 120000  # let's take 10% of the top as a cushion
 # income
 grossMonthly = 14167
-healthDeduction = 600
-jim401kContribution = 2292
-employerContributionRate = 0.05
+healthDeduction = 460
 carleyPPSwagesBegin = 2025
 monthlyPensionNet = 2750
 monthlyPensionDict = {
@@ -51,23 +47,102 @@ monthlyPensionDict = {
     66: [5815, 36],
     67: [6247, 36],
 }
-pensionStartAge = 62
-lifeDeduction = 50
-disabilityDeduction = 20
+pensionStartAge = 55
+lifeDeduction = grossMonthly * 0.0042
+disabilityDeduction = grossMonthly * 0.044
+employerContributionRate = 0.05
+jimContributionRate = 0.05
 employer401kcontribution = grossMonthly * employerContributionRate
+jim401kContribution = grossMonthly * employerContributionRate
 total401kContribution = jim401kContribution + employer401kcontribution
 carleyPrePPSsavings = 850
 carleyPPSsavings = 2800
 # taxes
-fed = 0.1610
-med = 0.0160
-oasd = 0.0620
-state = 0.0800
+fed = 0.1395
+med = 0.0153
+oasd = 0.0653
+state = 0.0872
 orTransit = 0.0010
 orWorkerComp = 0.0002
 taxes = [fed, med, oasd, state, orTransit, orWorkerComp]
 # explicit safety margins
 rentalIncomeSafetyMargin = 0.1
+
+
+def getSS(startAge, retireAge, currentAge):
+    fullBenefitsAge = 67
+    if currentAge < retireAge and currentAge < fullBenefitsAge:
+        return 0
+    ssDict = {
+        55: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        56: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        57: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        58: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        59: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        60: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        61: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        62: [2340, 2393, 2447, 2500, 2553, 2606, 2658, 2711, 0, 0, 0],
+        63: [2507, 2563.78, 2621.63, 2678.41, 2735.2, 2791.98, 2847.69, 2904.47, 2955, 0, 0],
+        64: [2674, 2734.56, 2796.27, 2856.83, 2917.4, 2977.96, 3037.38, 3097.95, 3151.84, 3205, 0],
+        65: [2897, 2963, 3029, 3095, 3161, 3226, 3291, 3356, 3414, 3472, 3528],
+    }
+
+    if startAge < retireAge:
+        startAge = retireAge
+    start = max(62, min(65, startAge))
+    retire = max(55, min(65, retireAge))
+    # print("start now: ", start)
+    # print("retire now: ", retire)
+    pension = 0 if currentAge < 62 else ssDict[start][retire - 55]
+    return pension
+
+
+def getERS(startAge, retireAge, currentAge):
+    fullBenefitsAge = 62
+    if currentAge < retireAge:
+        return 0
+    ersDict = {
+        55: [834, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        56: [932, 1049, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        57: [1031, 1155, 1279, 0, 0, 0, 0, 0, 0, 0, 0],
+        58: [1133, 1264, 1396.5, 1531, 0, 0, 0, 0, 0, 0, 0],
+        59: [1237, 1377.5, 1514, 1659.5, 1801, 0, 0, 0, 0, 0, 0],
+        60: [1345, 1491, 1638, 1788, 1940.5, 2297, 0, 0, 0, 0, 0],
+        61: [1455, 1610.5, 1762, 1923.5, 2080, 2347, 2513, 0, 0, 0, 0],
+        62: [1569, 1730, 1851, 2059, 2180, 2397, 2571, 2744, 0, 0, 0],
+        63: [1610, 1777, 1940, 2112.5, 2280, 2457.5, 2629, 2811, 2990, 0, 0],
+        64: [1656, 1824, 1995.5, 2166, 2343, 2518, 2699.5, 2878, 3068, 3253, 0],
+        65: [1707, 1879, 2051, 2229, 2406, 2588, 2770, 2956, 3146, 3339, 3537],
+    }
+
+    if startAge < retireAge:
+        startAge = retireAge
+    start = max(55, min(65, startAge))
+    retire = max(55, min(65, retireAge))
+    # print("start now: ", start)
+    # print("retire now: ", retire)
+    pension = 0 if currentAge < 55 else ersDict[start][retire - 55]
+    return pension
+
+
+def getPension(startAge, retireAge, currentAge):
+    if currentAge < retireAge:
+        return 0
+    ss = getSS(startAge, retireAge, currentAge)
+    ers = getERS(startAge, retireAge, currentAge)
+    return ss + ers
+
+
+import sys
+
+# retireAge = 55
+# currentAge = 62
+# ss = getSS(62, retireAge, currentAge)
+# ers = getERS(62, retireAge, currentAge)
+# print("ss: ", ss)
+# print("ers: ", ers)
+# print("totalPension: ", ss + ers)
+# sys.exit()
 
 
 def calculateNetWages(grossMonthly, healthDeduction, monthly401k, taxes, lifeDeduction, disabilityDeduction):
@@ -170,18 +245,19 @@ def iterateMonthlyForecast(
     extraHollandMonths,
     sellRentals=False,
 ):
-    lombardHollandNetIncome = (
-        1000 * 0.66
-    )  # 8000/yr after paying student loans and home imp and holland mortgage reduction? Doubtful... This probably consumes the entire oops budget...
+    lombardHollandNetIncome = 867  # lombard clears 1200 gross, prob 900 net
     lombardHollandEquity = 250000
-    monthlySavings = hollandSavingsPrePPS
-    currentMonthlyBudget = monthlyBudget
-    currentMonthlySavings = monthlySavings
 
     # extraHollandMonths = 3
     foreverHomeDelayedMonth = -1
 
+    foreverHomeRenovationCost = 35000
+    completedForeverHomeRenovations = 0
+    maxForeverHomeRenovations = 2
+
     age = 39
+    pensionStartAge = 55
+    ssStartAge = 62
 
     # retireAge = age + (retireMonth / 12)
     # retireAge = 0
@@ -201,6 +277,7 @@ def iterateMonthlyForecast(
     retirementDate = ""
 
     rentalHomePurchaseMonths = []
+    incomeAt75 = 0
     incomeAt85 = 0
     rentalHomes = {}
     numRentalsPaidOff = 0
@@ -220,14 +297,72 @@ def iterateMonthlyForecast(
     foreverHomePurchaseMonth = 0
     foreverHomeUtilities = 500
 
+    studentLoans = 450 + 525 + 200  # fedloan + firstmark + carley's loans = 1175
+    carPayment = 0
+
+    preHollandSavingsPrePPS = hollandSavingsPrePPS
+    preHollandSavingsPPS = hollandSavingsPPS
+    preForeverHomeSavings = foreverHomeSavings
+
+    monthlySavings = hollandSavingsPrePPS
+    currentMonthlyBudget = monthlyBudget
+    currentMonthlySavings = monthlySavings
+
     for i in range(1, months):
         if i % 12 == 7:
             year += 1
         monthName = calendar.month_name[((i + 5) % 12) + 1]
 
+        if i == 96:
+            studentLoans = 450  # fedloan + firstmark + carley's loans = 1175
+        elif i == 360:
+            studentLoans = 0
+
+        if i == 24:
+            carPayment = 600
+        if i == 96:
+            carPayment = 0
+
+        hollandSavingsPrePPS = preHollandSavingsPrePPS - carPayment - studentLoans
+        hollandSavingsPPS = preHollandSavingsPPS - carPayment - studentLoans
+        foreverHomeSavings = preForeverHomeSavings - carPayment - studentLoans
+
+        # monthlySavings = hollandSavingsPrePPS
+        # currentMonthlySavings = monthlySavings
+
+        # hollandSavingsPrePPS = hollandSavingsPrePPS - carPayment - studentLoans
+        # hollandSavingsPPS = hollandSavingsPPS - carPayment - studentLoans
+        # foreverHomeSavings = foreverHomeSavings - carPayment - studentLoans
+        # if not foreverHome:
+        #     print("hollandSavingsPrePPS final: ", hollandSavingsPrePPS)
+        # # print("hollandSavingsPPS final: ", hollandSavingsPPS)
+        # # print("foreverHomeSavings final: ", foreverHomeSavings)
+        if i == 1:
+            monthlySavings = hollandSavingsPrePPS
+            currentMonthlySavings = monthlySavings
+            # print("currentMonthlySavings is: ", currentMonthlySavings)
+
+        if i == 24:
+            monthlySavings = hollandSavingsPrePPS
+            currentMonthlySavings = monthlySavings
+
+        if 12 < i < 30:
+            currentMonthlySavings = monthlySavings - carleyPrePPSsavings  # Carley not working during gtep
+            # if not foreverHome:
+            #     print("currentMonthlySavings without carleyPrePPSsavings: ", currentMonthlySavings)
+
         if i == 30:  # assume it takes C 6 months to start earning 53k
             monthlySavings = hollandSavingsPPS
             currentMonthlySavings = monthlySavings
+            # if not foreverHome:
+            #     print("currentMonthlySavings is now: ", currentMonthlySavings)
+
+        if i == 96:  # assume it takes C 6 months to start earning 53k
+            monthlySavings = hollandSavingsPPS
+            currentMonthlySavings = monthlySavings
+            if foreverHome:
+                monthlySavings = foreverHomeSavings
+                currentMonthlySavings = monthlySavings
 
         for id, rentalHome in rentalHomes.items():
             rentalHomePurchaseMonth = rentalHome["purchaseMonth"]
@@ -265,65 +400,107 @@ def iterateMonthlyForecast(
 
         if not foreverHome:
             currentMonthlyBudget = monthlyBudget * (1 - early40sReduction)
+            currentMonthlySavings = currentMonthlySavings + (monthlyBudget * early40sReduction)
+            # if not foreverHome:
+            #     print("currentMonthlySavings after early 40s reduction is: ", currentMonthlySavings)
         else:
             currentMonthlyBudget = monthlyBudget
 
-        if age >= pensionStartAge:
-            minAge = math.trunc(age) if age <= 67 else 67
-            pensionIncome = monthlyPensionDict[minAge][0]
-            # pensionIncome = monthlyPensionNet
-        else:
-            pensionIncome = 0
+        retireAge = 39 + (retireMonth / 12)
+        currentAge = 39 + (i / 12)
+
+        if retireAge > pensionStartAge:
+            pensionStartAge = retireAge
+
+        if retireAge > ssStartAge:
+            ssStartAge = retireAge
+
+        # if math.trunc(currentAge) < pensionStartAge:
+        #     pensionIncome = 0
+        # elif pensionIncome == 0:
+        ssIncome = getSS(math.trunc(ssStartAge), math.trunc(retireAge), math.trunc(currentAge))
+        ersIncome = getERS(math.trunc(pensionStartAge), math.trunc(retireAge), math.trunc(currentAge))
+        pensionIncome = ssIncome + ersIncome
+        # if i % 12 == 0:
+        #     print(
+        #         "ssStartAge: ",
+        #         ssStartAge,
+        #         "pensionStartAge: ",
+        #         pensionStartAge,
+        #         "retireAge: ",
+        #         retireAge,
+        #         "currentAge: ",
+        #         currentAge,
+        #         "ssIncome: ",
+        #         ssIncome,
+        #         "ersIncome: ",
+        #         ersIncome,
+        #     )
+        # if i % 12 == 0:
+        #     print("pensionStartAge: ", pensionStartAge)
+        #     print("math.trunc(retireAge): ", math.trunc(retireAge))
+        #     print("math.trunc(currentAge): ", math.trunc(currentAge))
+        #     print("pensionIncome: ", pensionIncome)
+        # if age >= pensionStartAge:
+        #     minAge = math.trunc(age) if age <= 67 else 67
+        #     pensionIncome = monthlyPensionDict[minAge][0]
+        #     # pensionIncome = monthlyPensionNet
+        # else:
+        #     pensionIncome = 0
 
         if foreverHome and (i - foreverHomePurchaseMonth) == 360:
             foreverHomeMortgage = foreverHomeMortgage * 0.32
 
-        if not retireAge:
-            if i >= retireMonth:
-                retired = True
-                retirementDate = monthName + " " + str(year)
-                currentMonthlyBudget = monthlyBudget * (1 - retirementReduction)
-                currentMonthlySavings = (
-                    pensionIncome
-                    - currentMonthlyBudget
-                    - travelBudget
-                    - oopsBudget
-                    - foreverHomeMortgage
-                    - foreverHomeUtilities
-                )
-            if age == 70:
-                oopsBudget = 250
-                travelBudget = 250
-        else:
-            if age >= retireAge:
-                retired = True
-                currentMonthlyBudget = monthlyBudget * (1 - retirementReduction)
-                if age == 70:
-                    oopsBudget = 250
-                    travelBudget = 250
-                currentMonthlySavings = (
-                    pensionIncome
-                    - currentMonthlyBudget
-                    - travelBudget
-                    - oopsBudget
-                    - foreverHomeMortgage
-                    - foreverHomeUtilities
-                )
+        if age == 70:
+            travelBudget = 250
+
+        postRetirementAnnualIncome = 0
+        postRetirementMonthlyIncome = (postRetirementAnnualIncome / 12) * 0.75
+        if i >= retireMonth:
+            if age >= 67:
+                postRetirementMonthlyIncome = 0
+            retired = True
+            retirementDate = monthName + " " + str(year)
+            currentMonthlyBudget = monthlyBudget * (1 - retirementReduction)
+            currentMonthlySavings = (
+                pensionIncome
+                + postRetirementMonthlyIncome
+                - currentMonthlyBudget
+                - travelBudget
+                - oopsBudget
+                - foreverHomeMortgage
+                - foreverHomeUtilities
+                - carPayment
+                - studentLoans
+            )
 
         savings = savings + currentMonthlySavings + otherIncome
+
+        if (
+            foreverHome
+            and (len(rentalHomes.keys()) > 0 or maxRentals == 0)
+            and savings > 100000
+            and completedForeverHomeRenovations < maxForeverHomeRenovations
+        ):
+            savings = savings - foreverHomeRenovationCost
+            completedForeverHomeRenovations += 1
 
         if savings > ((foreverHomeCost * 0.2) + foreverHomeReno + foreverHomePurchaseMinReserve) and not foreverHome:
             if foreverHomeDelayedMonth == -1:
                 foreverHomeDelayedMonth = i + extraHollandMonths
             if i == foreverHomeDelayedMonth:
                 foreverHome = True
+                # print("Savings at forever home purchase: ", savings)
                 savings = savings - ((foreverHomeCost * 0.2) + foreverHomeReno)
                 foreverHomeEquity = (foreverHomeCost * 0.2) + foreverHomeReno
                 foreverHomePurchaseMonth = i
                 monthlySavings = foreverHomeSavings
                 currentMonthlySavings = monthlySavings
+                # print("currentMonthlySavings after foreverhome is: ", currentMonthlySavings)
                 # print("Bought forever home in ", monthName, "", year)
                 foreverHomeDate = monthName + " " + str(year)
+
+                # LOMBARD HOLLAND EQUITY ASSUMES CLOSING COSTS / REPAIRS HAVE BEEN PAID
 
                 # print("Sold Lombard and Holland in ", monthName, "", year)
                 capGainsTaxRate = 0.15
@@ -376,6 +553,21 @@ def iterateMonthlyForecast(
             savingsAt75 = savings
             equityAt75 = equity
             incomeAt75 = currentMonthlySavings + otherIncome
+            # print("Age is 75: ")
+            # print("retireAge: ", (39 + (retireMonth / 12)))
+            # print("savingsAt75: ", savingsAt75)
+            # print("pensionIncome: ", pensionIncome)
+            # print("postRetirementMonthlyIncome: ", postRetirementMonthlyIncome)
+            # print("currentMonthlyBudget: ", currentMonthlyBudget)
+            # print("travelBudget: ", travelBudget)
+            # print("oopsBudget: ", oopsBudget)
+            # print("foreverHomeMortgage: ", foreverHomeMortgage)
+            # print("foreverHomeUtilities: ", foreverHomeUtilities)
+            # print("pensionIncome: ", pensionIncome)
+            # print("carPayment: ", carPayment)
+            # print("studentLoans: ", studentLoans)
+            # print("currentMonthlySavings: ", incomeAt75)
+
             budgetAt75 = currentMonthlyBudget
         if age == 85:
             savingsAt85 = savings
@@ -399,7 +591,7 @@ def iterateMonthlyForecast(
                     if saleValue > 0:
                         rentalHomes.pop(oldestRentalID)
                         savings += saleValue
-                        lowSavings = savings
+                        # lowSavings = savings
                         sellRentals = False  # only do this once
             if lowSavings < 0:
                 otherIncome = int(otherIncome)
@@ -407,36 +599,59 @@ def iterateMonthlyForecast(
                 equity = int(equity)
                 break
 
-        if 12 < i < 30:
-            savings = savings - carleyPrePPSsavings  # Carley not working during gtep
         if foreverHome:
             savings = savings * (1 + (savingsReturnRate / 12))
+
+        printAnnualStats = False
         if i % 12 == 0:
             age += 1
             otherIncome = int(otherIncome)
             savings = int(savings)
             equity = int(equity)
             printRetiredAge = retireAge if retireAge else (39 + (retireMonth / 12))
-            # print(
-            #     "For age:",
-            #     age,
-            #     "| year is:",
-            #     year,
-            #     "| retireAge is:",
-            #     printRetiredAge,
-            #     "| rentals paid off:",
-            #     numRentalsPaidOff,
-            #     "| currentMonthlySavings is:",
-            #     "${:,.2f}".format(currentMonthlySavings),
-            #     "| savings is:",
-            #     "${:,.2f}".format(savings),
-            #     "| lowSavings is:",
-            #     "${:,.2f}".format(lowSavings),
-            #     "| currentMonthlyBudget is:",
-            #     "${:,.2f}".format(currentMonthlyBudget),
-            #     "| equity is:",
-            #     "${:,.2f}".format(equity),
-            # )
+            if printAnnualStats:
+                print(
+                    "For age:",
+                    age,
+                    "| year is:",
+                    year,
+                    "| retireAge is:",
+                    printRetiredAge,
+                    "| rentals paid off:",
+                    numRentalsPaidOff,
+                    "| pensionIncome is:",
+                    "${:,.2f}".format(pensionIncome),
+                    "| currentMonthlySavings is:",
+                    "${:,.2f}".format(currentMonthlySavings),
+                    "| savings is:",
+                    "${:,.2f}".format(savings),
+                    "| lowSavings is:",
+                    "${:,.2f}".format(lowSavings),
+                    "| currentMonthlyBudget is:",
+                    "${:,.2f}".format(currentMonthlyBudget),
+                    "| equity is:",
+                    "${:,.2f}".format(equity),
+                )
+        printForeverHomeTracking = False
+        if printForeverHomeTracking:
+            # if not foreverHome:
+            if i < 100:
+                otherIncome = int(otherIncome)
+                savings = int(savings)
+                equity = int(equity)
+                printRetiredAge = retireAge if retireAge else (39 + (retireMonth / 12))
+                print(
+                    "For ",
+                    monthName + " " + str(year),
+                    "| currentMonthlySavings is:",
+                    "${:,.2f}".format(currentMonthlySavings),
+                    "| savings is:",
+                    "${:,.2f}".format(savings),
+                    "| otherIncome is:",
+                    "${:,.2f}".format(otherIncome),
+                    "| currentMonthlyBudget is:",
+                    "${:,.2f}".format(currentMonthlyBudget),
+                )
 
     return (
         age,
@@ -446,6 +661,7 @@ def iterateMonthlyForecast(
         int(savings),
         int(equity),
         foreverHomeDate,
+        int(incomeAt75),
         int(incomeAt85),
         int(budgetAt85),
         int(savingsAt75),
@@ -464,7 +680,7 @@ def planRetirement(event, context):
     postRetirementReturnRate = event.get("postRetirementReturnRate", 0.0313)
     # budgets
     monthlyBudget = event.get("monthlyBudget", 5500)
-    oopsBudget = event.get("oopsBudget", 1000)
+    oopsBudget = event.get("oopsBudget", 0)
     travelBudget = event.get("travelBudget", 1000)
     retirementReduction = event.get("retirementReduction", 0.25)
     early40sReduction = event.get("early40sReduction", 0.05)
@@ -485,7 +701,7 @@ def planRetirement(event, context):
     # maxRentals = int(event["maxRentals"])
     # foreverHomeCost = event["foreverHomeCost"]
 
-    foreverHomeMortgage = foreverHomeCost * 0.0056
+    foreverHomeMortgage = foreverHomeCost * 0.00595
 
     # income calculation
     jimNetWages = calculateNetWages(
@@ -503,6 +719,17 @@ def planRetirement(event, context):
         - hollandUtilites
     )
 
+    # print("jimNetWages: ", jimNetWages)
+    # print("total401kContribution: ", total401kContribution)
+    # print("carleyPrePPSsavings: ", carleyPrePPSsavings)
+    # print("monthlyBudget: ", monthlyBudget)
+    # print("travelBudget: ", travelBudget)
+    # print("oopsBudget: ", oopsBudget)
+    # print("hollandMortage: ", hollandMortage)
+    # print("hollandUtilites: ", hollandUtilites)
+
+    # print("hollandSavingsPrePPS before student and car loan: ", hollandSavingsPrePPS)
+
     hollandSavingsPPS = (
         jimNetWages
         + total401kContribution
@@ -514,6 +741,8 @@ def planRetirement(event, context):
         - hollandUtilites
     )
 
+    # print("hollandSavingsPPS before student and car loan: ", hollandSavingsPPS)
+
     foreverHomeSavings = (
         jimNetWages
         + carleyPPSsavings
@@ -524,6 +753,8 @@ def planRetirement(event, context):
         - foreverHomeMortgage
         - foreverHomeUtilities
     )
+
+    # print("foreverHomeSavings before student and car loan: ", foreverHomeSavings)
 
     monthsToLive = (60 * 12) + 6  # month 1 is June, 2022
     months = monthsToLive
@@ -548,6 +779,7 @@ def planRetirement(event, context):
             savingsTest,
             equityTest,
             foreverHomeDateTest,
+            incomeAt75Test,
             incomeAt85Test,
             budgetAt85Test,
             savingsAt75Test,
@@ -575,7 +807,7 @@ def planRetirement(event, context):
             postRetirementReturnRate,
             foreverHomeCost,
             extraHollandMonths,
-            sellRentals=True,
+            sellRentals=False,
         )
     retireAge = age + (retireMonth / 12)
     print(
@@ -591,6 +823,8 @@ def planRetirement(event, context):
         "${:,.2f}".format(lowSavingsTest),
         "| rentals paid off is:",
         numRentalsPaidOffTest,
+        "| incomeAt75 is:",
+        "${:,.2f}".format(incomeAt75Test),
         "| incomeAt85 is:",
         "${:,.2f}".format(incomeAt85Test),
         "| savingsAt75 is:",
@@ -630,8 +864,8 @@ def respond(err, code, body=None):
             "Content-Type": "application/json",
         },
     }
-    log.info("Response: %s", function_response)
-    print(function_response["body"])
+    # log.info("Response: %s", function_response)
+    print("Outgoing response body: ", function_response["body"])
     return function_response
 
 
@@ -644,6 +878,7 @@ def lambda_handler(event, context):
             postBody = json.loads(event["body"])
         except:
             postBody = event["body"]
+        print("Incoming POST body: ", postBody)
         status_code, body = planRetirement(postBody, context)
         # body["postBody"] = postBody
         if status_code != 200:
@@ -664,20 +899,20 @@ event = {
         "inflation": 0.0313,
         "returnRate": 0.055,
         "postRetirementReturnRate": 0.0313,
-        "monthlyBudget": 5500,
-        "oopsBudget": 1000,
+        "monthlyBudget": 5000,
+        "oopsBudget": 250,
         "travelBudget": 1000,
-        "retirementReduction": 0.00,
+        "retirementReduction": 0.25,
         "early40sReduction": 0.00,
         "maxRentals": 2,
         "foreverHomeCost": 750000,
         "extraHollandMonths": 0,
     }
 }
-### NOTE as buffer have removed carley pre-PPS income
+
 print("######################################################")
 print("~~~~~~~~~~~~~~~~~~~~~~~~ BODY ~~~~~~~~~~~~~~~~~~~~~~~~")
-print(event)
+# print(event)
 print("~~~~~~~~~~~~~~~~~~~~~~~ RESULT ~~~~~~~~~~~~~~~~~~~~~~~")
 try:
     event["body"] = json.dumps(event["body"])
