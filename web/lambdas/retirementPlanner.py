@@ -11,21 +11,20 @@ log = logging.getLogger()
 # savings
 foreverHomePurchaseMinReserve = 25000
 rentalHomePurchaseMinReserve = 50000
-startingSavings = 70000
+startingSavings = 60000
 # real estate
-hollandMortage = 600
+hollandMortgage = 2400
 hollandUtilites = 400
 # foreverHomeMortgage = 4200
 foreverHomeUtilities = 500
 vacancyRate = 0.04
 propManRate = 0.09  # includes half month for new tenants
-lombardHollandNetIncome = 867  # lombard clears 1200 gross, probably 900 net
-lombardHollandEquity = 250000
+# lombardHollandNetIncome = 2000  # top-line ~2700, ~2000 after vacancy and maintenance
+# lombardHollandEquity = 250000
 rentalIncomeNominal = 120000  # let's take 10% of the top as a cushion
 # income
-grossMonthly = 14167
+grossMonthly = 14378
 healthDeduction = 460
-carleyPPSwagesBegin = 2025
 monthlyPensionNet = 2750
 monthlyPensionDict = {
     50: [2420, 12.91],
@@ -49,7 +48,7 @@ monthlyPensionDict = {
 }
 pensionStartAge = 55
 lifeDeduction = grossMonthly * 0.0042
-disabilityDeduction = grossMonthly * 0.044
+fersDeduction = grossMonthly * 0.044
 employerContributionRate = 0.05
 jimContributionRate = 0.05
 employer401kcontribution = grossMonthly * employerContributionRate
@@ -114,7 +113,7 @@ def getERS(startAge, retireAge, currentAge):
         64: [1656, 1824, 1995.5, 2166, 2343, 2518, 2699.5, 2878, 3068, 3253, 0],
         65: [1707, 1879, 2051, 2229, 2406, 2588, 2770, 2956, 3146, 3339, 3537],
     }
-
+    startAge = 62 if retireAge < 60 else 60
     if startAge < retireAge:
         startAge = retireAge
     start = max(55, min(65, startAge))
@@ -133,8 +132,7 @@ def getPension(startAge, retireAge, currentAge):
     return ss + ers
 
 
-import sys
-
+# import sys
 # retireAge = 55
 # currentAge = 62
 # ss = getSS(62, retireAge, currentAge)
@@ -145,7 +143,7 @@ import sys
 # sys.exit()
 
 
-def calculateNetWages(grossMonthly, healthDeduction, monthly401k, taxes, lifeDeduction, disabilityDeduction):
+def calculateNetWages(grossMonthly, healthDeduction, monthly401k, taxes, lifeDeduction, fersDeduction):
     fed = taxes[0]
     med = taxes[1]
     oasd = taxes[2]
@@ -156,9 +154,15 @@ def calculateNetWages(grossMonthly, healthDeduction, monthly401k, taxes, lifeDed
     totalTaxRate = fed + med + oasd + state + orTransit + orWorkerComp
     tax = preTaxWages * totalTaxRate
     postTaxWages = preTaxWages - tax
-    postTaxDeductions = healthDeduction + lifeDeduction + disabilityDeduction
+    postTaxDeductions = healthDeduction + lifeDeduction + fersDeduction
     netWages = postTaxWages - postTaxDeductions
     return netWages
+
+
+# import sys
+# net = calculateNetWages(grossMonthly, healthDeduction, 718, taxes, lifeDeduction, fersDeduction)
+# print(net)
+# sys.exit()
 
 
 def getMonthlyRentalIncome(
@@ -245,7 +249,7 @@ def iterateMonthlyForecast(
     extraHollandMonths,
     sellRentals=False,
 ):
-    lombardHollandNetIncome = 867  # lombard clears 1200 gross, prob 900 net
+    lombardHollandNetIncome = 2000  # 2700 before vacancy/maintenance
     lombardHollandEquity = 250000
 
     # extraHollandMonths = 3
@@ -297,7 +301,7 @@ def iterateMonthlyForecast(
     foreverHomePurchaseMonth = 0
     foreverHomeUtilities = 500
 
-    studentLoans = 450 + 525 + 200  # fedloan + firstmark + carley's loans = 1175
+    studentLoans = 450 + 525  # fedloan + firstmark + carley's loans = 1175
     carPayment = 0
 
     preHollandSavingsPrePPS = hollandSavingsPrePPS
@@ -320,6 +324,7 @@ def iterateMonthlyForecast(
 
         if i == 24:
             carPayment = 600
+            studentLoans = 525 + 450 + 200
         if i == 96:
             carPayment = 0
 
@@ -482,6 +487,7 @@ def iterateMonthlyForecast(
             and savings > 100000
             and completedForeverHomeRenovations < maxForeverHomeRenovations
         ):
+            # print("subtracting foreverhome renovation cost from savings")
             savings = savings - foreverHomeRenovationCost
             completedForeverHomeRenovations += 1
 
@@ -609,7 +615,8 @@ def iterateMonthlyForecast(
             savings = int(savings)
             equity = int(equity)
             printRetiredAge = retireAge if retireAge else (39 + (retireMonth / 12))
-            if printAnnualStats:
+            netSavings = currentMonthlySavings + otherIncome
+            if printAnnualStats and netSavings > 0 and retired:
                 print(
                     "For age:",
                     age,
@@ -619,6 +626,8 @@ def iterateMonthlyForecast(
                     printRetiredAge,
                     "| rentals paid off:",
                     numRentalsPaidOff,
+                    "| netSavings is:",
+                    "${:,.2f}".format(netSavings),
                     "| pensionIncome is:",
                     "${:,.2f}".format(pensionIncome),
                     "| currentMonthlySavings is:",
@@ -705,7 +714,7 @@ def planRetirement(event, context):
 
     # income calculation
     jimNetWages = calculateNetWages(
-        grossMonthly, healthDeduction, jim401kContribution, taxes, lifeDeduction, disabilityDeduction
+        grossMonthly, healthDeduction, jim401kContribution, taxes, lifeDeduction, fersDeduction
     )
 
     hollandSavingsPrePPS = (
@@ -715,7 +724,7 @@ def planRetirement(event, context):
         - (monthlyBudget * (1 - early40sReduction))
         - travelBudget
         - oopsBudget
-        - hollandMortage
+        - hollandMortgage
         - hollandUtilites
     )
 
@@ -725,7 +734,7 @@ def planRetirement(event, context):
     # print("monthlyBudget: ", monthlyBudget)
     # print("travelBudget: ", travelBudget)
     # print("oopsBudget: ", oopsBudget)
-    # print("hollandMortage: ", hollandMortage)
+    # print("hollandMortgage: ", hollandMortgage)
     # print("hollandUtilites: ", hollandUtilites)
 
     # print("hollandSavingsPrePPS before student and car loan: ", hollandSavingsPrePPS)
@@ -737,7 +746,7 @@ def planRetirement(event, context):
         - monthlyBudget
         - travelBudget
         - oopsBudget
-        - hollandMortage
+        - hollandMortgage
         - hollandUtilites
     )
 
@@ -899,7 +908,7 @@ event = {
         "inflation": 0.0313,
         "returnRate": 0.055,
         "postRetirementReturnRate": 0.0313,
-        "monthlyBudget": 5000,
+        "monthlyBudget": 4500,
         "oopsBudget": 250,
         "travelBudget": 1000,
         "retirementReduction": 0.25,

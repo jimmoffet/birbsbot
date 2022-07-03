@@ -130,11 +130,13 @@ def lambda_handler(event, context):
     # grade = 16
 
     search_param = "Keyword=" + search_phrase + "&"
-    hiring_path_param = "HiringPath=public&HiringPath=fed-excepted"
+    hiring_path_param = "HiringPath=public&HiringPath=fed-excepted" + "&"
+    remote_param = "RemoteIndicator=True" + "&"
     grade_param = "PayGradeLow=" + str(grade) + "&"
     params = (
         search_param
         + hiring_path_param
+        + remote_param
         + grade_param
         + "gs=true&RemunerationMinimumAmount=170533&RemunerationMaximumAmount=500000"
     )
